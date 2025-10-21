@@ -2,8 +2,8 @@ name: Daily Twitter Scraper
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # Runs daily at 08:00 UTC
-  workflow_dispatch:
+    - cron: '0 8 * * *'  # Runs every day at 08:00 UTC
+  workflow_dispatch:      # Allows manual testing
 
 jobs:
   scrape:
@@ -20,11 +20,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install snscrape pandas
 
       - name: Run scraper
-        env:
-          TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
         run: python scrape.py
 
       - name: Commit results if updated
@@ -33,7 +31,7 @@ jobs:
           git config user.email github-actions@github-actions
           if [[ `git status --porcelain` ]]; then
             git add tweets.csv
-            git commit -m "Update scraped tweets $(date)"
+            git commit -m "Daily scrape $(date)"
             git push
           else
             echo "No new tweets to commit."
